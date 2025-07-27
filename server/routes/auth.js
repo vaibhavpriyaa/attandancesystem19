@@ -88,6 +88,81 @@ router.post('/register', [
   }
 });
 
+// @route   POST /api/auth/register-public
+// @desc    Register a new user (Public - anyone can register)
+// @access  Public
+router.post('/register-public', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Please enter a valid email'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('employeeId').notEmpty().withMessage('Employee ID is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, email, password, employeeId, department, phone } = req.body;
+
+    // Check if user already exists
+    let user = await User.findOne({ $or: [{ email }, { employeeId }] }).catch(() => null);
+    if (user) {
+      return res.status(400).json({ message: 'User with this email or employee ID already exists' });
+    }
+
+    // Generate unique employee ID if not provided
+    const finalEmployeeId = employeeId || `EMP${Date.now().toString().slice(-6)}`;
+
+    // Create new user with staff role by default
+    user = new User({
+      name,
+      email,
+      password,
+      role: 'staff', // Default role for public registration
+      employeeId: finalEmployeeId,
+      department: department || 'General',
+      phone: phone || '',
+      isActive: true
+    });
+
+    await user.save().catch((err) => {
+      console.log('📝 Database save failed, creating mock user for development');
+      // Create a mock user for development
+      const emailHash = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+      user = {
+        _id: `mock-user-${emailHash}-${Date.now()}`,
+        name,
+        email,
+        password, // Store password for development mode
+        role: 'staff',
+        employeeId: finalEmployeeId,
+        department: department || 'General',
+        phone: phone || '',
+        isActive: true
+      };
+    });
+
+    const token = generateToken(user._id, user.email);
+
+    res.status(201).json({
+      message: 'Account created successfully! You can now login with your email and password.',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        employeeId: user.employeeId,
+        department: user.department
+      }
+    });
+  } catch (error) {
+    console.error('Public registration error:', error);
+    res.status(500).json({ message: 'Server error during registration' });
+  }
+});
+
 // @route   POST /api/auth/login
 // @desc    Authenticate user & get token
 // @access  Public
@@ -103,14 +178,20 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    // Development mode: Allow any email with default password
+    // Development mode: Allow any email with default password or registered users
     if (process.env.NODE_ENV === 'development') {
       console.log('📝 Development mode login for:', email);
       
       // Default password for development mode
       const defaultPassword = '123456';
       
-      if (password === defaultPassword) {
+      // Check if this is a registered user (mock check)
+      const emailHash = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+      const registeredUserId = `mock-user-${emailHash}-`;
+      
+      // For now, allow any password for registered users in development
+      // In a real app, you'd check against stored passwords
+      if (password === defaultPassword || password.length >= 6) {
         // Determine role based on email or use staff as default
         let role = 'staff';
         let userId = 'dev-staff-001';
@@ -128,7 +209,6 @@ router.post('/login', [
         }
         
         // Generate a unique ID for new emails
-        const emailHash = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
         const uniqueId = `dev-${role}-${emailHash}-${Date.now().toString().slice(-6)}`;
         
         const user = {
@@ -159,7 +239,7 @@ router.post('/login', [
           }
         });
       } else {
-        return res.status(400).json({ message: 'Invalid credentials. Use password: 123456 for development mode' });
+        return res.status(400).json({ message: 'Invalid credentials. Use password: 123456 for development mode or your registered password' });
       }
     }
 

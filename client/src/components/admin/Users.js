@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { HiPlus, HiPencil, HiTrash, HiEye, HiUser, HiChartBar } from 'react-icons/hi';
-import { useAuth } from '../../contexts/AuthContext';
+
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -50,9 +50,9 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
     fetchStats();
-  }, [pagination.currentPage, filters, fetchUsers]);
+  }, [pagination.currentPage, filters]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -81,7 +81,7 @@ const Users = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.currentPage, filters]);
 
   const fetchStats = async () => {
     try {

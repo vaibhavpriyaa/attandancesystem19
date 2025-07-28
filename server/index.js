@@ -53,7 +53,22 @@ const overrideMongooseOperations = () => {
     
     // Override User model operations
     const User = require('./models/User');
+    
+    // Create a mock query object with select method
+    const createMockQuery = (data) => ({
+      select: () => data,
+      exec: () => Promise.resolve(data),
+      populate: () => createMockQuery(data),
+      lean: () => data
+    });
+    
     User.findOne = async () => null;
+    User.findById = (id) => createMockQuery({
+      _id: id,
+      name: 'Mock User',
+      email: 'mock@example.com',
+      role: 'staff'
+    });
     User.create = async (userData) => {
       console.log('📝 Mock user creation:', userData.email);
       return { ...userData, _id: 'mock-user-id', id: 'mock-user-id' };

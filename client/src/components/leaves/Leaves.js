@@ -15,12 +15,14 @@ import {
 } from 'react-icons/hi';
 
 const Leaves = () => {
-  const { isAdmin, user: currentUser } = useAuth();
+  const { isAdmin } = useAuth();
   const [leaves, setLeaves] = useState([]);
   const [leaveBalance, setLeaveBalance] = useState({});
   const [loading, setLoading] = useState(true);
   const [showRequestForm, setShowRequestForm] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [showBalanceModal, setShowBalanceModal] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedLeaves, setSelectedLeaves] = useState([]);
   const [filters, setFilters] = useState({

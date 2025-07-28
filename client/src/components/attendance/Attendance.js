@@ -104,7 +104,7 @@ const Attendance = () => {
     if (isAdmin) {
       fetchUsers();
     }
-  }, [pagination.currentPage, filters, isAdmin]);
+  }, [fetchAttendanceRecords, isAdmin]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));

@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "attendance-management-system",
+  "public": true,
   "builds": [
     {
       "src": "server/index.js",

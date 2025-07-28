@@ -250,6 +250,47 @@ router.get('/today-status', auth, async (req, res) => {
 // @access  Private
 router.get('/my-records', auth, async (req, res) => {
   try {
+    // In development mode, return mock attendance data
+    if (process.env.NODE_ENV === 'development') {
+      const mockAttendance = [
+        {
+          _id: 'attendance-1',
+          userId: req.user._id,
+          date: new Date(),
+          checkIn: '09:00',
+          checkOut: '17:00',
+          status: 'present',
+          totalHours: 8,
+          notes: 'Regular day',
+          approvedBy: null,
+          createdAt: new Date()
+        },
+        {
+          _id: 'attendance-2',
+          userId: req.user._id,
+          date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          checkIn: '08:45',
+          checkOut: '17:15',
+          status: 'present',
+          totalHours: 8.5,
+          notes: 'Early arrival',
+          approvedBy: null,
+          createdAt: new Date()
+        }
+      ];
+
+      return res.json({
+        attendance: mockAttendance,
+        pagination: {
+          currentPage: 1,
+          totalPages: 1,
+          totalRecords: 2,
+          hasNext: false,
+          hasPrev: false
+        }
+      });
+    }
+
     const { startDate, endDate, page = 1, limit = 10 } = req.query;
     
     const query = { userId: req.user._id };

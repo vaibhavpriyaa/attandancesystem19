@@ -50,7 +50,7 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
     fetchStats();
-  }, [pagination.currentPage, filters]);
+  }, [fetchUsers, fetchStats]);
 
   const fetchUsers = useCallback(async () => {
     try {

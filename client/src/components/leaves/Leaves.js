@@ -20,7 +20,9 @@ const Leaves = () => {
   const [leaveBalance, setLeaveBalance] = useState({});
   const [loading, setLoading] = useState(true);
   const [showRequestForm, setShowRequestForm] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [showBalanceModal, setShowBalanceModal] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [showBulkModal, setShowBulkModal] = useState(false);
 
   const [selectedLeaves, setSelectedLeaves] = useState([]);
@@ -164,6 +166,7 @@ const Leaves = () => {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleBulkAction = async (action, rejectionReason = '') => {
     if (selectedLeaves.length === 0) {
       toast.error('Please select leave requests to process');

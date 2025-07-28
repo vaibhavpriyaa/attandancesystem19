@@ -47,11 +47,6 @@ const Users = () => {
     casual: 7
   });
 
-  useEffect(() => {
-    fetchUsers();
-    fetchStats();
-  }, [fetchUsers, fetchStats]);
-
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -83,7 +78,7 @@ const Users = () => {
     }
   }, [pagination.currentPage, filters]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await fetch('/api/users/stats', {
         headers: {
@@ -98,7 +93,12 @@ const Users = () => {
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchStats();
+  }, [fetchUsers, fetchStats]);
 
   const fetchUserLeaveBalance = async (userId) => {
     try {

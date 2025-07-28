@@ -566,6 +566,29 @@ router.post('/bulk-approve', [
 // @access  Private
 router.get('/balance', auth, async (req, res) => {
   try {
+    // In development mode, return mock balance
+    if (process.env.NODE_ENV === 'development') {
+      const balance = {
+        annual: {
+          total: 21,
+          used: 0,
+          remaining: 21
+        },
+        sick: {
+          total: 10,
+          used: 0,
+          remaining: 10
+        },
+        casual: {
+          total: 7,
+          used: 0,
+          remaining: 7
+        }
+      };
+
+      return res.json(balance);
+    }
+
     // Default leave balance
     const balance = {
       annual: {

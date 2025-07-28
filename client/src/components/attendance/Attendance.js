@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { 
   HiCalendar, 
   HiClock, 
+  HiFilter,
   HiDownload,
   HiPencil,
   HiTrash,
   HiCheckCircle,
-  HiXCircle
+  HiXCircle,
+  HiRefresh
 } from 'react-icons/hi';
 
 const Attendance = () => {
@@ -31,7 +33,7 @@ const Attendance = () => {
   });
   const [users, setUsers] = useState([]);
 
-  const fetchAttendanceRecords = useCallback(async () => {
+  const fetchAttendanceRecords = async () => {
     try {
       setLoading(true);
       const endpoint = isAdmin ? '/api/attendance/all' : '/api/attendance/my-records';
@@ -83,7 +85,7 @@ const Attendance = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.currentPage, filters, isAdmin]);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -104,7 +106,7 @@ const Attendance = () => {
     if (isAdmin) {
       fetchUsers();
     }
-  }, [pagination.currentPage, filters, isAdmin, fetchAttendanceRecords]);
+  }, [pagination.currentPage, filters, isAdmin]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));

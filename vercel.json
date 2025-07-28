@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "name": "attendance-management-system",
-  "public": true,
   "builds": [
     {
       "src": "server/index.js",
@@ -24,5 +22,13 @@
       "src": "/(.*)",
       "dest": "client/build/$1"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "server/index.js": {
+      "maxDuration": 30
+    }
+  }
 } 

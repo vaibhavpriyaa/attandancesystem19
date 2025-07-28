@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { HiPlus, HiPencil, HiTrash, HiEye, HiUser, HiChartBar } from 'react-icons/hi';
-
+import React, { useState, useEffect } from 'react';
+import { HiPlus, HiPencil, HiTrash, HiEye, HiUser, HiMail, HiPhone, HiOfficeBuilding, HiCalendar, HiChartBar, HiRefresh, HiFilter, HiDownload, HiUpload } from 'react-icons/hi';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Users = () => {
+  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -47,7 +48,12 @@ const Users = () => {
     casual: 7
   });
 
-  const fetchUsers = useCallback(async () => {
+  useEffect(() => {
+    fetchUsers();
+    fetchStats();
+  }, [pagination.currentPage, filters]);
+
+  const fetchUsers = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -76,9 +82,9 @@ const Users = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.currentPage, filters]);
+  };
 
-  const fetchStats = useCallback(async () => {
+  const fetchStats = async () => {
     try {
       const response = await fetch('/api/users/stats', {
         headers: {
@@ -93,12 +99,7 @@ const Users = () => {
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchUsers();
-    fetchStats();
-  }, [fetchUsers, fetchStats]);
+  };
 
   const fetchUserLeaveBalance = async (userId) => {
     try {
@@ -474,7 +475,7 @@ const Users = () => {
                       >
                         <HiEye className="h-4 w-4" />
                       </button>
-                      {user.role !== 'admin' && (
+                      {user._id !== user._id && (
                         <button
                           onClick={() => handleDeleteUser(user._id)}
                           className="text-red-600 hover:text-red-900"

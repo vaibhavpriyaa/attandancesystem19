@@ -33,7 +33,8 @@
   "author": "Priya Vaibhav Shukla",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "eslint": "^9.32.0"
   },
   "engines": {
     "node": ">=14.0.0",
@@ -47,4 +48,4 @@
     "url": "https://github.com/priyavaibhavshukla/ATTANDENCE-MANGAEMENT-SYSTEM/issues"
   },
   "homepage": "https://github.com/priyavaibhavshukla/ATTANDENCE-MANGAEMENT-SYSTEM#readme"
-} 
+}

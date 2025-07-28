@@ -8,7 +8,7 @@ const leaveSchema = new mongoose.Schema({
   },
   leaveType: {
     type: String,
-    enum: ['sick', 'casual', 'annual', 'maternity', 'paternity', 'other'],
+    enum: ['sick', 'casual', 'annual', 'maternity', 'paternity', 'bereavement', 'study', 'jury', 'military', 'other'],
     required: true
   },
   fromDate: {
@@ -26,7 +26,7 @@ const leaveSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'cancelled'],
     default: 'pending'
   },
   approvedBy: {
@@ -44,12 +44,64 @@ const leaveSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  // New fields for enhanced leave management
+  emergencyContact: {
+    name: {
+      type: String,
+      trim: true
+    },
+    phone: {
+      type: String,
+      trim: true
+    },
+    relationship: {
+      type: String,
+      trim: true
+    }
+  },
+  isHalfDay: {
+    type: Boolean,
+    default: false
+  },
+  halfDayType: {
+    type: String,
+    enum: ['morning', 'afternoon'],
+    default: 'morning'
+  },
+  priority: {
+    type: String,
+    enum: ['low', 'medium', 'high', 'urgent'],
+    default: 'medium'
+  },
   attachments: [{
     filename: String,
     path: String,
     uploadedAt: {
       type: Date,
       default: Date.now
+    }
+  }],
+  // For tracking leave balance
+  leaveBalance: {
+    annual: { type: Number, default: 0 },
+    sick: { type: Number, default: 0 },
+    casual: { type: Number, default: 0 }
+  },
+  // For notifications
+  notifications: [{
+    type: {
+      type: String,
+      enum: ['submitted', 'approved', 'rejected', 'reminder'],
+      required: true
+    },
+    message: String,
+    sentAt: {
+      type: Date,
+      default: Date.now
+    },
+    read: {
+      type: Boolean,
+      default: false
     }
   }]
 }, {
@@ -60,6 +112,8 @@ const leaveSchema = new mongoose.Schema({
 leaveSchema.index({ userId: 1, fromDate: 1 });
 leaveSchema.index({ status: 1 });
 leaveSchema.index({ approvedBy: 1 });
+leaveSchema.index({ leaveType: 1 });
+leaveSchema.index({ priority: 1 });
 
 // Virtual for calculating total days
 leaveSchema.virtual('calculatedDays').get(function() {
@@ -69,6 +123,21 @@ leaveSchema.virtual('calculatedDays').get(function() {
     return diffDays + 1; // Include both start and end date
   }
   return 0;
+});
+
+// Virtual for checking if leave is active
+leaveSchema.virtual('isActive').get(function() {
+  const now = new Date();
+  return this.status === 'approved' && 
+         this.fromDate <= now && 
+         this.toDate >= now;
+});
+
+// Virtual for checking if leave is upcoming
+leaveSchema.virtual('isUpcoming').get(function() {
+  const now = new Date();
+  return this.status === 'approved' && 
+         this.fromDate > now;
 });
 
 // Pre-save middleware to calculate total days

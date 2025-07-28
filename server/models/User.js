@@ -43,6 +43,33 @@ const userSchema = new mongoose.Schema({
   },
   lastLogin: {
     type: Date
+  },
+  // Leave balance tracking
+  leaveBalance: {
+    annual: {
+      type: Number,
+      default: 21 // Default annual leave days
+    },
+    sick: {
+      type: Number,
+      default: 10 // Default sick leave days
+    },
+    casual: {
+      type: Number,
+      default: 7 // Default casual leave days
+    }
+  },
+  // Additional user information
+  position: {
+    type: String,
+    trim: true
+  },
+  joiningDate: {
+    type: Date
+  },
+  manager: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true
@@ -71,6 +98,22 @@ userSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;
   return user;
+};
+
+// Method to update leave balance
+userSchema.methods.updateLeaveBalance = function(leaveType, days) {
+  if (this.leaveBalance && this.leaveBalance[leaveType] !== undefined) {
+    this.leaveBalance[leaveType] += days;
+    return this.save();
+  }
+  return Promise.reject(new Error(`Invalid leave type: ${leaveType}`));
+};
+
+// Method to check leave balance
+userSchema.methods.hasLeaveBalance = function(leaveType, days) {
+  return this.leaveBalance && 
+         this.leaveBalance[leaveType] && 
+         this.leaveBalance[leaveType] >= days;
 };
 
 module.exports = mongoose.model('User', userSchema); 

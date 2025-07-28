@@ -56,10 +56,12 @@ const overrideMongooseOperations = () => {
     
     // Create a mock query object with select method
     const createMockQuery = (data) => ({
-      select: () => data,
+      select: () => createMockQuery(data),
       exec: () => Promise.resolve(data),
       populate: () => createMockQuery(data),
-      lean: () => data
+      lean: () => data,
+      then: (resolve) => Promise.resolve(data).then(resolve),
+      catch: (reject) => Promise.resolve(data).catch(reject)
     });
     
     User.findOne = async () => null;
@@ -67,14 +69,52 @@ const overrideMongooseOperations = () => {
       _id: id,
       name: 'Mock User',
       email: 'mock@example.com',
-      role: 'staff'
+      role: 'staff',
+      leaveBalance: {
+        annual: { total: 21, used: 0, remaining: 21 },
+        sick: { total: 10, used: 0, remaining: 10 },
+        casual: { total: 7, used: 0, remaining: 7 }
+      }
     });
     User.create = async (userData) => {
       console.log('📝 Mock user creation:', userData.email);
       return { ...userData, _id: 'mock-user-id', id: 'mock-user-id' };
     };
     
-    // Override other model operations as needed
+    // Override Leave model operations
+    const Leave = require('./models/Leave');
+    Leave.find = async () => [];
+    Leave.findById = (id) => createMockQuery({
+      _id: id,
+      userId: 'mock-user-id',
+      leaveType: 'annual',
+      startDate: new Date(),
+      endDate: new Date(),
+      totalDays: 1,
+      reason: 'Mock leave request',
+      status: 'pending'
+    });
+    Leave.create = async (leaveData) => {
+      console.log('📝 Mock leave creation:', leaveData.leaveType);
+      return { ...leaveData, _id: 'mock-leave-id', id: 'mock-leave-id' };
+    };
+    
+    // Override Attendance model operations
+    const Attendance = require('./models/Attendance');
+    Attendance.find = async () => [];
+    Attendance.findById = (id) => createMockQuery({
+      _id: id,
+      userId: 'mock-user-id',
+      date: new Date(),
+      checkIn: new Date(),
+      checkOut: new Date(),
+      status: 'present'
+    });
+    Attendance.create = async (attendanceData) => {
+      console.log('📝 Mock attendance creation:', attendanceData.date);
+      return { ...attendanceData, _id: 'mock-attendance-id', id: 'mock-attendance-id' };
+    };
+    
     console.log('✅ Mongoose operations overridden for development');
   }
 };

@@ -95,14 +95,23 @@ router.post('/', [
 
     // Check leave balance for annual and casual leaves
     if (['annual', 'casual'].includes(leaveType)) {
-      const user = await User.findById(req.user._id);
-      const leaveBalance = user.leaveBalance || {};
-      const requestedDays = to.diff(from, 'days') + 1;
-      
-      if (leaveBalance[leaveType] < requestedDays) {
-        return res.status(400).json({ 
-          message: `Insufficient ${leaveType} leave balance. Available: ${leaveBalance[leaveType] || 0} days, Requested: ${requestedDays} days` 
-        });
+      // In development mode, skip balance check
+      if (process.env.NODE_ENV === 'development') {
+        // Mock balance check - always allow in development
+      } else {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+        
+        const leaveBalance = user.leaveBalance || {};
+        const requestedDays = to.diff(from, 'days') + 1;
+        
+        if (leaveBalance[leaveType] < requestedDays) {
+          return res.status(400).json({ 
+            message: `Insufficient ${leaveType} leave balance. Available: ${leaveBalance[leaveType] || 0} days, Requested: ${requestedDays} days` 
+          });
+        }
       }
     }
 
@@ -326,14 +335,17 @@ router.put('/:id/approve', [
       leave.rejectionReason = rejectionReason;
     }
 
-    // If approved, update user's leave balance
-    if (status === 'approved' && ['annual', 'casual'].includes(leave.leaveType)) {
-      const user = await User.findById(leave.userId._id);
-      if (user.leaveBalance && user.leaveBalance[leave.leaveType]) {
-        user.leaveBalance[leave.leaveType] -= leave.totalDays;
-        await user.save();
+          // If approved, update user's leave balance
+      if (status === 'approved' && ['annual', 'casual'].includes(leave.leaveType)) {
+        // In development mode, skip balance update
+        if (process.env.NODE_ENV !== 'development') {
+          const user = await User.findById(leave.userId._id);
+          if (user && user.leaveBalance && user.leaveBalance[leave.leaveType]) {
+            user.leaveBalance[leave.leaveType] -= leave.totalDays;
+            await user.save();
+          }
+        }
       }
-    }
 
     await leave.save();
 
@@ -524,10 +536,13 @@ router.post('/bulk-approve', [
 
       // If approved, update user's leave balance
       if (status === 'approved' && ['annual', 'casual'].includes(leave.leaveType)) {
-        const user = await User.findById(leave.userId._id);
-        if (user.leaveBalance && user.leaveBalance[leave.leaveType]) {
-          user.leaveBalance[leave.leaveType] -= leave.totalDays;
-          await user.save();
+        // In development mode, skip balance update
+        if (process.env.NODE_ENV !== 'development') {
+          const user = await User.findById(leave.userId._id);
+          if (user && user.leaveBalance && user.leaveBalance[leave.leaveType]) {
+            user.leaveBalance[leave.leaveType] -= leave.totalDays;
+            await user.save();
+          }
         }
       }
 
@@ -593,6 +608,19 @@ router.put('/balance/:userId', [
     }
 
     const { annual, sick, casual } = req.body;
+    
+    // In development mode, return mock response
+    if (process.env.NODE_ENV === 'development') {
+      return res.json({
+        message: 'Leave balance updated successfully (development mode)',
+        leaveBalance: {
+          annual: annual || 20,
+          sick: sick || 10,
+          casual: casual || 5
+        }
+      });
+    }
+    
     const user = await User.findById(req.params.userId);
     
     if (!user) {

@@ -165,6 +165,32 @@ router.get('/', adminAuth, async (req, res) => {
 // @access  Private (Admin)
 router.get('/:id', adminAuth, async (req, res) => {
   try {
+    // Development mode: Return mock user data
+    if (process.env.NODE_ENV === 'development') {
+      const mockUser = {
+        _id: req.params.id,
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        role: 'staff',
+        employeeId: 'EMP001',
+        department: 'Engineering',
+        phone: '+1234567890',
+        isActive: true,
+        position: 'Software Engineer',
+        joiningDate: new Date('2023-01-15'),
+        manager: null,
+        leaveBalance: {
+          annual: 20,
+          sick: 10,
+          casual: 5
+        },
+        createdAt: new Date('2023-01-15'),
+        updatedAt: new Date()
+      };
+      
+      return res.json({ user: mockUser });
+    }
+
     const user = await User.findById(req.params.id).select('-password');
     
     if (!user) {
@@ -483,6 +509,18 @@ router.put('/:id/leave-balance', [
     }
 
     const { annual, sick, casual } = req.body;
+
+    // In development mode, return mock response
+    if (process.env.NODE_ENV === 'development') {
+      return res.json({
+        message: 'Leave balance updated successfully (development mode)',
+        leaveBalance: {
+          annual: annual || 20,
+          sick: sick || 10,
+          casual: casual || 5
+        }
+      });
+    }
 
     if (!user.leaveBalance) {
       user.leaveBalance = {};

@@ -191,6 +191,11 @@ router.get('/:id', adminAuth, async (req, res) => {
       return res.json({ user: mockUser });
     }
 
+    // In development mode, skip database query
+    if (process.env.NODE_ENV === 'development') {
+      return res.json({ user: mockUser });
+    }
+
     const user = await User.findById(req.params.id).select('-password');
     
     if (!user) {

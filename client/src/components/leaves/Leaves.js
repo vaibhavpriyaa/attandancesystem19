@@ -8,27 +8,19 @@ import {
   HiCheckCircle,
   HiXCircle,
   HiPlus,
-  HiFilter,
-  HiRefresh,
-  HiEye,
-  HiPencil,
-  HiTrash,
-  HiExclamation,
-  HiUser,
-  HiPhone,
   HiCog,
   HiChartBar,
   HiDownload
 } from 'react-icons/hi';
 
 const Leaves = () => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user: currentUser } = useAuth();
   const [leaves, setLeaves] = useState([]);
   const [leaveBalance, setLeaveBalance] = useState({});
   const [loading, setLoading] = useState(true);
   const [showRequestForm, setShowRequestForm] = useState(false);
-  const [showBalanceModal, setShowBalanceModal] = useState(false);
-  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showBalanceModal] = useState(false);
+  const [showBulkModal] = useState(false);
   const [selectedLeaves, setSelectedLeaves] = useState([]);
   const [filters, setFilters] = useState({
     status: '',
@@ -170,31 +162,31 @@ const Leaves = () => {
     }
   };
 
-  const handleBulkAction = async (action, rejectionReason = '') => {
-    if (selectedLeaves.length === 0) {
-      toast.error('Please select leave requests to process');
-      return;
-    }
+  // const handleBulkAction = async (action, rejectionReason = '') => {
+  //   if (selectedLeaves.length === 0) {
+  //     toast.error('Please select leave requests to process');
+  //     return;
+  //   }
 
-    try {
-      if (action === 'approve' || action === 'reject') {
-        await axios.post('/api/leaves/bulk-approve', {
-          leaveIds: selectedLeaves,
-          status: action,
-          rejectionReason
-        });
-        toast.success(`Bulk ${action} completed successfully!`);
-      }
-      
-      setSelectedLeaves([]);
-      setShowBulkModal(false);
-      fetchLeaves();
-      fetchLeaveBalance();
-      fetchStats();
-    } catch (error) {
-      toast.error(`Failed to ${action} leave requests`);
-    }
-  };
+  //   try {
+  //     if (action === 'approve' || action === 'reject') {
+  //       await axios.post('/api/leaves/bulk-approve', {
+  //         leaveIds: selectedLeaves,
+  //         status: action,
+  //         rejectionReason
+  //       });
+  //       toast.success(`Bulk ${action} completed successfully!`);
+  //     }
+  //     
+  //     setSelectedLeaves([]);
+  //     setShowBulkModal(false);
+  //     fetchLeaves();
+  //     fetchLeaveBalance();
+  //     fetchStats();
+  //   } catch (error) {
+  //     toast.error(`Failed to ${action} leave requests`);
+  //   }
+  // };
 
   const getStatusBadge = (status) => {
     const statusConfig = {

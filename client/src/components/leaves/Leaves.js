@@ -20,7 +20,8 @@ const Leaves = () => {
   const [leaveBalance, setLeaveBalance] = useState({});
   const [loading, setLoading] = useState(true);
   const [showRequestForm, setShowRequestForm] = useState(false);
-
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
 
   const [selectedLeaves, setSelectedLeaves] = useState([]);
   const [filters, setFilters] = useState({

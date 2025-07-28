@@ -176,3 +176,4 @@ Thumbs.db
 
 # Local development files
 *.local 
+.vercel

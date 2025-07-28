@@ -5,13 +5,11 @@ import toast from 'react-hot-toast';
 import { 
   HiCalendar, 
   HiClock, 
-  HiFilter,
   HiDownload,
   HiPencil,
   HiTrash,
   HiCheckCircle,
-  HiXCircle,
-  HiRefresh
+  HiXCircle
 } from 'react-icons/hi';
 
 const Attendance = () => {
@@ -106,7 +104,7 @@ const Attendance = () => {
     if (isAdmin) {
       fetchUsers();
     }
-  }, [pagination.currentPage, filters, isAdmin]);
+  }, [pagination.currentPage, filters, isAdmin, fetchAttendanceRecords]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));

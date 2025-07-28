@@ -8,27 +8,18 @@ import {
   HiCheckCircle,
   HiXCircle,
   HiPlus,
-  HiFilter,
-  HiRefresh,
-  HiEye,
-  HiPencil,
-  HiTrash,
-  HiExclamation,
-  HiUser,
-  HiPhone,
   HiCog,
   HiChartBar,
   HiDownload
 } from 'react-icons/hi';
 
 const Leaves = () => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin } = useAuth();
   const [leaves, setLeaves] = useState([]);
   const [leaveBalance, setLeaveBalance] = useState({});
   const [loading, setLoading] = useState(true);
   const [showRequestForm, setShowRequestForm] = useState(false);
-  const [showBalanceModal, setShowBalanceModal] = useState(false);
-  const [showBulkModal, setShowBulkModal] = useState(false);
+
   const [selectedLeaves, setSelectedLeaves] = useState([]);
   const [filters, setFilters] = useState({
     status: '',

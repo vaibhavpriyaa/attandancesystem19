@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { HiPlus, HiPencil, HiTrash, HiEye, HiUser, HiMail, HiPhone, HiOfficeBuilding, HiCalendar, HiChartBar, HiRefresh, HiFilter, HiDownload, HiUpload } from 'react-icons/hi';
+import { HiPlus, HiPencil, HiTrash, HiEye, HiUser, HiChartBar } from 'react-icons/hi';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Users = () => {
-  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -51,7 +50,7 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
     fetchStats();
-  }, [pagination.currentPage, filters]);
+  }, [pagination.currentPage, filters, fetchUsers]);
 
   const fetchUsers = async () => {
     try {
@@ -475,7 +474,7 @@ const Users = () => {
                       >
                         <HiEye className="h-4 w-4" />
                       </button>
-                      {user._id !== user._id && (
+                      {user.role !== 'admin' && (
                         <button
                           onClick={() => handleDeleteUser(user._id)}
                           className="text-red-600 hover:text-red-900"

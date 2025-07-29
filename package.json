@@ -15,8 +15,7 @@
     "setup": "node setup.js",
     "setup-mongodb": "node setup-mongodb.js",
     "install-mongodb": "bash install-mongodb.sh",
-    "setup-mongodb-atlas": "node setup-mongodb-atlas.js",
-    "vercel-build": "cd client && npm install && npm run build"
+    "setup-mongodb-atlas": "node setup-mongodb-atlas.js"
   },
   "keywords": [
     "attendance",
